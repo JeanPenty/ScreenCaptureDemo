@@ -60,5 +60,6 @@
 #endif
 
 
+#include <math.h>
 #include <GdiPlus.h>
 using namespace Gdiplus;
