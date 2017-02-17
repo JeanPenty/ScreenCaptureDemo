@@ -3,12 +3,12 @@
 
 // CBackGroundDlg 对话框
 
-enum DrawShape
+enum DrawShape			//形状枚举
 {
-	EN_DRAW_NULL,
-	EN_DRAW_ARROW,
-	EN_DRAW_ELLIPSE,
-	EN_DRAW_RECT,
+	EN_DRAW_NULL,		//未选中
+	EN_DRAW_ARROW,		//箭头
+	EN_DRAW_ELLIPSE,	//椭圆
+	EN_DRAW_RECT,		//矩形
 };
 
 class CBackGroundDlg : public CDialog
@@ -32,7 +32,6 @@ private:
 	int m_cx;
 	int m_cy;
 	CBitmap*	m_pBitmap;
-	CBitmap*	m_pTempBitmap;
 	Image*		m_pImgMask;
 	Image*		m_pImgDot;
 
@@ -48,22 +47,22 @@ private:
 	Image*		m_pimgOperateBG;
 
 	CPoint		m_ptDown;
-	bool		m_bDraw;
-	bool		m_bFirstDraw;
-	bool		m_bMoveAll;
+	bool		m_bDraw;			//鼠标按下
+	bool		m_bFirstDraw;		//第一次绘制，选中截取区域
+	bool		m_bMoveAll;			//整体移动
 
-	bool		m_bLeftTopMove;
-	bool		m_bTopMove;
-	bool		m_bRightTopMove;
-	bool		m_bRightMove;
-	bool		m_bRightBottomMove;
-	bool		m_bBottomMove;
-	bool		m_bLeftBottomMove;
-	bool		m_bLeftMove;
+	bool		m_bLeftTopMove;		//左上角拖拽拉伸
+	bool		m_bTopMove;			//上边拖拽拉伸
+	bool		m_bRightTopMove;	//右上角拖拽拉伸
+	bool		m_bRightMove;		//右边拖拽拉伸
+	bool		m_bRightBottomMove;	//右下角拖拽拉伸
+	bool		m_bBottomMove;		//下边拖拽拉伸
+	bool		m_bLeftBottomMove;	//左下角拖拽拉伸
+	bool		m_bLeftMove;		//左边拖拽拉伸
 
-	bool		m_bDrawOperate;
+	bool		m_bDrawOperate;		//绘制矩形、椭圆、箭头或者其他
 
-	CRect		m_rcSelected;
+	CRect		m_rcSelected;		//截取的区域
 	CRect		m_rcRemote;
 
 	CRect		m_rcSave, m_rcFinish, m_rcClipboard, m_rcArrow, m_rcRectangle, m_rcEllipse;
@@ -80,9 +79,13 @@ private:
 		m_hCurHand,
 		m_hCurArrow;
 
-	RectF		m_rcLeft, m_rcRight, m_rcTop, m_rcBottom;
+	RectF		m_rcLeft, m_rcRight, m_rcTop, m_rcBottom;		//4块灰色区域
 
-	DrawShape   m_drawState;
+	DrawShape   m_drawState;									//涂鸦类型
+
+	CToolTipCtrl m_toolTip;
+
+	bool		m_bShowTip;
 public:
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);

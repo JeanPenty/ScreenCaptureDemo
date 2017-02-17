@@ -52,6 +52,8 @@ CBackGroundDlg::CBackGroundDlg(CWnd* pParent /*=NULL*/, CBitmap* pbmp /*= NULL*/
 	m_bDrawOperate = false;
 
 	m_drawState = EN_DRAW_NULL;
+
+	m_bShowTip = false;
 }
 
 CBackGroundDlg::~CBackGroundDlg()
@@ -82,11 +84,20 @@ BOOL CBackGroundDlg::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 
+	EnableToolTips(TRUE);
+	m_toolTip.Create(this);
+	m_toolTip.Activate(TRUE);
+	m_toolTip.AddTool(this, _T("operateBar"));
+
 	m_cx = GetSystemMetrics(SM_CXSCREEN);
 	m_cy = GetSystemMetrics(SM_CYSCREEN);
 
 	::SetWindowPos(this->GetSafeHwnd(), 
 		HWND_TOPMOST, 0,0, m_cx, m_cy, SWP_NOCOPYBITS);
+
+	/*	2017-02-17	yangjinpeng
+	@	加载工程中所用到的资源图片
+	*/
 
 	m_pImgMask = Gdiplus::Image::FromFile(L"SC_MASK.png");
 	m_pImgDot = Gdiplus::Image::FromFile(L"SC_DOT.png");
@@ -153,10 +164,21 @@ void CBackGroundDlg::OnPaint()
 void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	/*
+	@	如果鼠标按下区域在截取的区域内，有两种操作
+	@	1、整体移动
+	@	2、绘制其他图形或者涂鸦
+	*/
 	if (PtInRect(m_rcSelected, point) && !m_bDrawOperate)
 	{
 		m_bMoveAll = true;
-		SetCursor(m_hCurSelect);
+		SetCursor(m_hCurSelect);		
+	}
+	else if (!PtInRect(m_rcSelected, point) && !m_bDrawOperate)
+	{
+		m_bDraw = false;
+		SetCursor(m_hCurArrow);
 	}
 	else
 		SetCursor(m_hCurArrow);
@@ -236,8 +258,8 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	//begin operate_bar
 	if (PtInRect(m_rcFinish, point))
 	{
-		SetCursor(m_hCurHand);		//设置鼠标为手型
 		//TODO:	截图完成，可在此处写相应的逻辑处理代码	
+		SetCursor(m_hCurHand);		//设置鼠标为手型
 		CopyScreenCaptureToClipboard();
 	}
 
@@ -257,7 +279,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (PtInRect(m_rcArrow, point))
 	{
-		SetCursor(m_hCurHand);
+		SetCursor(m_hCurHand);			//选取了画的形状为箭头
 		m_bDrawOperate = true;
 
 		m_drawState = EN_DRAW_ARROW;
@@ -512,6 +534,8 @@ BOOL CBackGroundDlg::PreTranslateMessage(MSG* pMsg)
 		}
 	}
 
+	m_toolTip.RelayEvent(pMsg);
+
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
@@ -533,14 +557,180 @@ void CBackGroundDlg::OnMouseMove(UINT nFlags, CPoint point)
 		SetCursor(m_hCurArrow);
 
 	//begin	operate_bar 
-	if (PtInRect(m_rcFinish, point) ||
-		PtInRect(m_rcSave, point) ||
-		PtInRect(m_rcClipboard, point) ||
-		PtInRect(m_rcArrow, point) ||
-		PtInRect(m_rcEllipse, point) ||
-		PtInRect(m_rcRectangle, point))
+	if (PtInRect(m_rcFinish, point) && !m_bShowTip)
 	{
+// 		m_toolTip.UpdateTipText(L"完成", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcFinish.left, m_rcFinish.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = true;
 		SetCursor(m_hCurHand);
+	}
+	else
+	{
+// 		m_toolTip.UpdateTipText(L"", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcFinish.left, m_rcFinish.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 		m_bShowTip = false;
+	}
+	
+	if (PtInRect(m_rcSave, point) && !m_bShowTip)
+	{
+// 		m_toolTip.UpdateTipText(L"保存", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcSave.left, m_rcSave.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = true;
+		SetCursor(m_hCurHand);
+	}
+	else
+	{
+// 		m_toolTip.UpdateTipText(L"", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcSave.left, m_rcSave.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 		m_bShowTip = false;
+	}
+
+	if (PtInRect(m_rcClipboard, point) && !m_bShowTip)
+	{
+// 		m_toolTip.UpdateTipText(L"复制到剪贴板", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcClipboard.left, m_rcClipboard.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = true;
+		SetCursor(m_hCurHand);
+	}
+	else
+	{
+// 		m_toolTip.UpdateTipText(L"", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcClipboard.left, m_rcClipboard.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 		m_bShowTip = false;
+	}
+
+	if (PtInRect(m_rcArrow, point) && !m_bShowTip)
+	{
+// 		m_toolTip.UpdateTipText(L"箭头", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcArrow.left, m_rcArrow.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = true;
+		SetCursor(m_hCurHand);
+	}
+	else
+	{
+// 		m_toolTip.UpdateTipText(L"", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcArrow.left, m_rcArrow.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 		m_bShowTip = false;
+	}
+
+	if (PtInRect(m_rcEllipse, point) && !m_bShowTip)
+	{
+// 		m_toolTip.UpdateTipText(L"椭圆", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcEllipse.left, m_rcEllipse.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = true;
+		SetCursor(m_hCurHand);
+	}
+	else
+	{
+// 		m_toolTip.UpdateTipText(L"", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcEllipse.left, m_rcEllipse.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = false;
+	}
+	
+	if (PtInRect(m_rcRectangle, point) && !m_bShowTip)
+	{
+// 		m_toolTip.UpdateTipText(L"矩形", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcRectangle.left, m_rcRectangle.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = true;
+		SetCursor(m_hCurHand);
+	}
+	else
+	{
+// 		m_toolTip.UpdateTipText(L"", this);
+// 		CToolInfo       sTinfo;                // 提示信息
+// 		m_toolTip.GetToolInfo(sTinfo, this);
+// 		sTinfo.uFlags = TTF_TRACK;     // 显示方式设置
+// 		m_toolTip.SetToolInfo(&sTinfo);
+// 
+// 		m_toolTip.SendMessage(TTM_TRACKPOSITION, 0, 
+// 			(LPARAM)MAKELONG(m_rcRectangle.left, m_rcRectangle.bottom));
+// 		m_toolTip.SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&sTinfo ); // tips显示
+// 
+// 		m_bShowTip = false;
 	}
 	//end
 
@@ -789,53 +979,53 @@ void CBackGroundDlg::OnMouseMove(UINT nFlags, CPoint point)
 		{
 			TrackLeft(point);			//左边拉伸
 		}
-	}
 
-	if (m_bDraw && m_bDrawOperate)
-	{
-		CPoint ptRemote = point;
-		if (point.x <= m_rcSelected.left)
+		if (m_bDraw && m_bDrawOperate && PtInRect(m_rcSelected, m_ptDown))
 		{
-			ptRemote.x = m_rcSelected.left;
-		}
-
-		if (point.x >= m_rcSelected.right)
-		{
-			ptRemote.x = m_rcSelected.right;
-		}
-
-		if (point.y <= m_rcSelected.top)
-		{
-			ptRemote.y = m_rcSelected.top;
-		}
-
-		if (point.y >= m_rcSelected.bottom)
-		{
-			ptRemote.y = m_rcSelected.bottom;
-		}
-
-		switch (m_drawState)
-		{
-		case EN_DRAW_ARROW:
+			CPoint ptRemote = point;
+			if (point.x <= m_rcSelected.left)
 			{
-				DrawArrow(ptRemote);
+				ptRemote.x = m_rcSelected.left;
 			}
-			break;
 
-		case EN_DRAW_ELLIPSE:
+			if (point.x >= m_rcSelected.right)
 			{
-				DrawEllipse(ptRemote);
+				ptRemote.x = m_rcSelected.right;
 			}
-			break;
 
-		case EN_DRAW_RECT:
+			if (point.y <= m_rcSelected.top)
 			{
-				DrawRectangle(ptRemote);
+				ptRemote.y = m_rcSelected.top;
 			}
-			break;
 
-		default:
-			break;
+			if (point.y >= m_rcSelected.bottom)
+			{
+				ptRemote.y = m_rcSelected.bottom;
+			}
+
+			switch (m_drawState)
+			{
+			case EN_DRAW_ARROW:
+				{
+					DrawArrow(ptRemote);
+				}
+				break;
+
+			case EN_DRAW_ELLIPSE:
+				{
+					DrawEllipse(ptRemote);
+				}
+				break;
+
+			case EN_DRAW_RECT:
+				{
+					DrawRectangle(ptRemote);
+				}
+				break;
+
+			default:
+				break;
+			}
 		}
 	}
 
@@ -2189,7 +2379,7 @@ void CBackGroundDlg::DrawArrow(CPoint point)
 	Pen hPen(&hBrush, 2);
 	graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);  
 
-	LineArrow(&BufferDC, m_ptDown, point, 30, 15, 50, clr, 1);
+	LineArrow(&BufferDC, m_ptDown, point, 30, 15, 40, clr, 1);
 
 	pDC->BitBlt(rt.left,
 		rt.top, 
@@ -2226,8 +2416,8 @@ void CBackGroundDlg::LineArrow(CDC* pDC,CPoint p1, CPoint p2,double theta,double
 	int len;
 	if (size==1)
 	{
-		length = length/2;
-		len	   = length-1.5;
+		length = (int)(length/2);
+		len	   = (int)(length-1.5);
 	}
 	else if (size == 2)
 	{
@@ -2271,18 +2461,18 @@ void CBackGroundDlg::LineArrow(CDC* pDC,CPoint p1, CPoint p2,double theta,double
 	SolidBrush GdiBrush(Gdiplus::Color(255,GetRValue(clr),GetGValue(clr),GetBValue(clr)));
 	graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);  
 	Point   pts[6];
-	pts[0].X = p1.x;
-	pts[0].Y = p1.y;
-	pts[1].X = Pax;
-	pts[1].Y = Pay;
-	pts[2].X = P1x;
-	pts[2].Y = P1y;
-	pts[3].X = p2.x;
-	pts[3].Y = p2.y;
-	pts[4].X = P2x;
-	pts[4].Y = P2y;
-	pts[5].X = Pbx;
-	pts[5].Y = Pby;
+	pts[0].X = (INT)p1.x;
+	pts[0].Y = (INT)p1.y;
+	pts[1].X = (INT)Pax;
+	pts[1].Y = (INT)Pay;
+	pts[2].X = (INT)P1x;
+	pts[2].Y = (INT)P1y;
+	pts[3].X = (INT)p2.x;
+	pts[3].Y = (INT)p2.y;
+	pts[4].X = (INT)P2x;
+	pts[4].Y = (INT)P2y;
+	pts[5].X = (INT)Pbx;
+	pts[5].Y = (INT)Pby;
 	graphics.FillPolygon(&GdiBrush,pts,6);
 }
 
@@ -2360,24 +2550,24 @@ void CBackGroundDlg::DrawRectangle(CPoint point)
 	RectF rcRectangle;
 	if (point.x >= m_ptDown.x)
 	{
-		rcRectangle.X = m_ptDown.x;
-		rcRectangle.Width = point.x - m_ptDown.x;
+		rcRectangle.X = (REAL)m_ptDown.x;
+		rcRectangle.Width = (REAL)point.x - (REAL)m_ptDown.x;
 	}
 	else
 	{
-		rcRectangle.X = point.x;
-		rcRectangle.Width = m_ptDown.x - point.x;
+		rcRectangle.X = (REAL)point.x;
+		rcRectangle.Width = (REAL)m_ptDown.x - (REAL)point.x;
 	}
 
 	if (point.y >= m_ptDown.y)
 	{
-		rcRectangle.Y = m_ptDown.y;
-		rcRectangle.Height = point.y - m_ptDown.y;
+		rcRectangle.Y = (REAL)m_ptDown.y;
+		rcRectangle.Height = (REAL)point.y - (REAL)m_ptDown.y;
 	}
 	else
 	{
-		rcRectangle.Y = point.y;
-		rcRectangle.Height = m_ptDown.y - point.y;
+		rcRectangle.Y = (REAL)point.y;
+		rcRectangle.Height = (REAL)m_ptDown.y - (REAL)point.y;
 	}
 
 	graphics.DrawRectangle(&hPen, rcRectangle);
