@@ -126,7 +126,8 @@ private:
 	void DrawArrow(CPoint point);
 	void LineArrow(CDC* pDC,CPoint p1, CPoint p2,double theta,double alpha,int length,COLORREF clr,int size);
 
-
+	void DrawRectangle(CPoint point);
+	void DrawEllipse(CPoint point);
 	HBITMAP CopyClientToBitmap(int x,int y,int cx,int cy,bool bsave=false);
 protected:
 	HBITMAP CopyDCToBitmap(LPRECT lpRect,BOOL bSave =FALSE );

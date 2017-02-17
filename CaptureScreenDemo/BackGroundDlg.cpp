@@ -793,41 +793,45 @@ void CBackGroundDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 	if (m_bDraw && m_bDrawOperate)
 	{
+		CPoint ptRemote = point;
+		if (point.x <= m_rcSelected.left)
+		{
+			ptRemote.x = m_rcSelected.left;
+		}
+
+		if (point.x >= m_rcSelected.right)
+		{
+			ptRemote.x = m_rcSelected.right;
+		}
+
+		if (point.y <= m_rcSelected.top)
+		{
+			ptRemote.y = m_rcSelected.top;
+		}
+
+		if (point.y >= m_rcSelected.bottom)
+		{
+			ptRemote.y = m_rcSelected.bottom;
+		}
+
 		switch (m_drawState)
 		{
 		case EN_DRAW_ARROW:
 			{
-				CPoint ptRemote = point;
-				if (point.x <= m_rcSelected.left)
-				{
-					ptRemote.x = m_rcSelected.left;
-				}
-
-				if (point.x >= m_rcSelected.right)
-				{
-					ptRemote.x = m_rcSelected.right;
-				}
-
-				if (point.y <= m_rcSelected.top)
-				{
-					ptRemote.y = m_rcSelected.top;
-				}
-
-				if (point.y >= m_rcSelected.bottom)
-				{
-					ptRemote.y = m_rcSelected.bottom;
-				}
-
 				DrawArrow(ptRemote);
 			}
 			break;
 
 		case EN_DRAW_ELLIPSE:
-			MessageBox(L"ellipse");
+			{
+				DrawEllipse(ptRemote);
+			}
 			break;
 
 		case EN_DRAW_RECT:
-			MessageBox(L"rect");
+			{
+				DrawRectangle(ptRemote);
+			}
 			break;
 
 		default:
@@ -2187,84 +2191,6 @@ void CBackGroundDlg::DrawArrow(CPoint point)
 
 	LineArrow(&BufferDC, m_ptDown, point, 30, 15, 50, clr, 1);
 
-// 	//画灰色的四个区域
-// 	RectF rcLeft, rcRight, rcTop, rcBottom;
-// 	CalcGrayAreaRect(m_rcSelected, rcLeft, rcTop, rcRight, rcBottom);
-// 	graphics.DrawImage(m_pImgMask, rcLeft, 0,0, 1, 1, UnitPixel);
-// 	graphics.DrawImage(m_pImgMask, rcRight, 0,0, 1, 1, UnitPixel);
-// 	graphics.DrawImage(m_pImgMask, rcTop, 0,0, 1, 1, UnitPixel);
-// 	graphics.DrawImage(m_pImgMask, rcBottom, 0,0, 1, 1, UnitPixel);
-// 
-// 	//画8个拉伸的点
-// 	//top left
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.left - 3, m_rcSelected.top - 3, 5, 5);
-// 	//bottom left
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.left - 3, m_rcSelected.bottom - 2, 5, 5);
-// 	//top right
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.right - 2, m_rcSelected.top - 3, 5, 5);
-// 	//bottom right
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.right - 2, m_rcSelected.bottom - 2, 5, 5);
-// 	//left
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.left -3, m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2, 5, 5);
-// 	//right
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.right - 2, m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2, 5, 5);
-// 	//top 
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.right - (m_rcSelected.right - m_rcSelected.left)/2, m_rcSelected.top - 3, 5, 5);
-// 	//bottom
-// 	graphics.DrawImage(m_pImgDot, m_rcSelected.right - (m_rcSelected.right - m_rcSelected.left)/2, m_rcSelected.bottom - 2, 5, 5);
-// 
-// 	//画一个线边框
-// 	Pen hLinePen(Color(255, 100, 100, 100), 1);
-// 	graphics.DrawLine(&hLinePen, m_rcSelected.left, m_rcSelected.top, m_rcSelected.right, m_rcSelected.top);
-// 	graphics.DrawLine(&hLinePen, m_rcSelected.right, m_rcSelected.top, m_rcSelected.right, m_rcSelected.bottom);
-// 	graphics.DrawLine(&hLinePen, m_rcSelected.left, m_rcSelected.bottom, m_rcSelected.right, m_rcSelected.bottom);
-// 	graphics.DrawLine(&hLinePen, m_rcSelected.left, m_rcSelected.top, m_rcSelected.left, m_rcSelected.bottom);
-// 
-// 	RectF rcTitleSize;
-// 	if (m_rcSelected.top > 20)
-// 	{
-// 
-// 		rcTitleSize.X = (REAL)m_rcSelected.left;
-// 		rcTitleSize.Y = (REAL)m_rcSelected.top - 20;
-// 		rcTitleSize.Width = 245;
-// 		rcTitleSize.Height = 20;
-// 	}
-// 	else
-// 	{
-// 		rcTitleSize.X = (REAL)m_rcSelected.left;
-// 		rcTitleSize.Y = (REAL)m_rcSelected.top;
-// 		rcTitleSize.Width = 245;
-// 		rcTitleSize.Height = 20;
-// 	}
-// 	graphics.DrawImage(m_pImgMask, rcTitleSize, 0,0, 1, 1, UnitPixel);
-// 
-// 	CString csTitle;
-// 	csTitle.Format(L"起始位置:%d.%d 矩形大小 %d*%d", 
-// 		m_rcSelected.left, m_rcSelected.top,
-// 		m_rcSelected.right - m_rcSelected.left,
-// 		m_rcSelected.bottom - m_rcSelected.top);
-// 
-// 	FontFamily fontFamily(L"楷体");
-// 	Gdiplus::Font font(&fontFamily, 14, FontStyleRegular, UnitPixel);
-// 	StringFormat strFormat;
-// 	strFormat.SetAlignment(StringAlignmentCenter);
-// 	strFormat.SetLineAlignment(StringAlignmentCenter);
-// 	graphics.DrawString(csTitle, -1, 
-// 		&font, 
-// 		PointF(rcTitleSize.X, rcTitleSize.Y+2),
-// 		&SolidBrush(Color(255, 255,255,255)));
-// 
-// 	RectF rcOperateBar, rcFinish, rcSave, rcClipboard, rcArrow, rcEllipse, rcRect;
-// 	CalcOperateBarRect(m_rcSelected, rcOperateBar, rcFinish, rcSave, rcClipboard, rcArrow, rcEllipse, rcRect);
-// 	graphics.DrawImage(m_pimgOperateBG, rcOperateBar, 0,0, 1, 1, UnitPixel);
-// 	graphics.DrawImage(m_pImgFinish, rcFinish, 0,0, 30, 30, UnitPixel);
-// 	graphics.DrawImage(m_pImgSave, rcSave, 0,0, 30, 30, UnitPixel);
-// 	graphics.DrawImage(m_pImgClipboard, rcClipboard, 0,0, 30, 30, UnitPixel);
-// 	graphics.DrawImage(m_pImgArrow, rcArrow, 0,0, 30, 30, UnitPixel);
-// 	graphics.DrawImage(m_pImgEllipse, rcEllipse, 0,0, 30, 30, UnitPixel);
-// 	graphics.DrawImage(m_pImgRectangle, rcRect, 0,0, 30, 30, UnitPixel);
-
-
 	pDC->BitBlt(rt.left,
 		rt.top, 
 		rt.Width(), 
@@ -2397,4 +2323,119 @@ HBITMAP CBackGroundDlg::CopyClientToBitmap(int x,int y,int cx,int cy,bool bsave)
 		}
 	}
 	return hBitmap;
+}
+
+void CBackGroundDlg::DrawRectangle(CPoint point)
+{
+	CRect rt;
+	GetClientRect(&rt);
+
+	CDC* pDC = GetDC();
+	CDC	BufferDC;
+	BufferDC.CreateCompatibleDC(pDC);
+	CBitmap buffBmp;
+	buffBmp.CreateCompatibleBitmap(pDC, rt.Width(), rt.Height());
+	BufferDC.SelectObject(&buffBmp);
+
+	CDC dc;
+	dc.CreateCompatibleDC(&BufferDC);
+	dc.SelectObject(m_pBitmap);
+	BufferDC.BitBlt(0, 0, rt.Width(), rt.Height(), &dc, 0, 0, SRCCOPY|CAPTUREBLT);
+	dc.DeleteDC();
+
+	PointF ptDown, ptRemote;
+	ptDown.X = (REAL)m_ptDown.x;
+	ptDown.Y = (REAL)m_ptDown.y;
+
+	ptRemote.X = (REAL)point.x;
+	ptRemote.Y = (REAL)point.y;
+
+	COLORREF clr(RGB(255, 0,0));
+
+	Gdiplus::Graphics graphics(BufferDC.m_hDC);
+	SolidBrush hBrush(Color::Red);
+	Pen hPen(&hBrush, 2);
+	graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);  
+
+	RectF rcRectangle;
+	if (point.x >= m_ptDown.x)
+	{
+		rcRectangle.X = m_ptDown.x;
+		rcRectangle.Width = point.x - m_ptDown.x;
+	}
+	else
+	{
+		rcRectangle.X = point.x;
+		rcRectangle.Width = m_ptDown.x - point.x;
+	}
+
+	if (point.y >= m_ptDown.y)
+	{
+		rcRectangle.Y = m_ptDown.y;
+		rcRectangle.Height = point.y - m_ptDown.y;
+	}
+	else
+	{
+		rcRectangle.Y = point.y;
+		rcRectangle.Height = m_ptDown.y - point.y;
+	}
+
+	graphics.DrawRectangle(&hPen, rcRectangle);
+
+	pDC->BitBlt(rt.left,
+		rt.top, 
+		rt.Width(), 
+		rt.Height(), 
+		&BufferDC, 0,0, SRCCOPY|CAPTUREBLT);
+	BufferDC.DeleteDC();
+	buffBmp.DeleteObject();
+	ReleaseDC(pDC);
+}
+
+void CBackGroundDlg::DrawEllipse(CPoint point)
+{
+	CRect rt;
+	GetClientRect(&rt);
+
+	CDC* pDC = GetDC();
+	CDC	BufferDC;
+	BufferDC.CreateCompatibleDC(pDC);
+	CBitmap buffBmp;
+	buffBmp.CreateCompatibleBitmap(pDC, rt.Width(), rt.Height());
+	BufferDC.SelectObject(&buffBmp);
+
+	CDC dc;
+	dc.CreateCompatibleDC(&BufferDC);
+	dc.SelectObject(m_pBitmap);
+	BufferDC.BitBlt(0, 0, rt.Width(), rt.Height(), &dc, 0, 0, SRCCOPY|CAPTUREBLT);
+	dc.DeleteDC();
+
+	PointF ptDown, ptRemote;
+	ptDown.X = (REAL)m_ptDown.x;
+	ptDown.Y = (REAL)m_ptDown.y;
+
+	ptRemote.X = (REAL)point.x;
+	ptRemote.Y = (REAL)point.y;
+
+	COLORREF clr(RGB(255, 0,0));
+
+	Gdiplus::Graphics graphics(BufferDC.m_hDC);
+	SolidBrush hBrush(Color::Red);
+	Pen hPen(&hBrush, 2);
+	graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);  
+
+	graphics.DrawEllipse(&hPen, 
+		m_ptDown.x,
+		m_ptDown.y, 
+		point.x - m_ptDown.x, 
+		point.y - m_ptDown.y);
+
+	pDC->BitBlt(rt.left,
+		rt.top, 
+		rt.Width(), 
+		rt.Height(), 
+		&BufferDC, 0,0, SRCCOPY|CAPTUREBLT);
+	BufferDC.DeleteDC();
+	buffBmp.DeleteObject();
+	ReleaseDC(pDC);
 }
