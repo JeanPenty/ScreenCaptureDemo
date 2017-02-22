@@ -11,6 +11,27 @@
 #endif
 
 
+HHOOK g_Keyboard_Hook = 0;
+HWND  g_hWnd;
+
+/*
+@	全局键盘钩子回调函数
+*/
+LRESULT CALLBACK Keyboard_Proc (int code, WPARAM wParam, LPARAM lParam)
+{
+	PKBDLLHOOKSTRUCT p = (PKBDLLHOOKSTRUCT)lParam;
+	if (wParam == WM_KEYDOWN && p->vkCode == 'A')
+	{
+		if (GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_CONTROL) < 0)
+		{
+			PostMessage(g_hWnd, WM_CAPTURE_SCREEN, 0,0);
+			return 1;
+		}
+	}
+
+	return CallNextHookEx (g_Keyboard_Hook, code, wParam, lParam);
+
+};
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialog
@@ -63,6 +84,9 @@ CCaptureScreenDemoDlg::~CCaptureScreenDemoDlg(void)
 		m_pdlgBkgnd->DestroyWindow();
 		m_pdlgBkgnd = NULL;
 	}
+
+	//卸载钩子
+	UnhookWindowsHookEx (g_Keyboard_Hook);
 }
 
 void CCaptureScreenDemoDlg::DoDataExchange(CDataExchange* pDX)
@@ -76,6 +100,7 @@ BEGIN_MESSAGE_MAP(CCaptureScreenDemoDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDC_BTN_CAPTURE, &CCaptureScreenDemoDlg::OnBnClickedBtnCapture)
+	ON_MESSAGE(WM_CAPTURE_SCREEN, OnRecvCaptureScreen)
 END_MESSAGE_MAP()
 
 
@@ -111,9 +136,22 @@ BOOL CCaptureScreenDemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	ModifyStyleEx(WS_EX_APPWINDOW,WS_EX_TOOLWINDOW);
+	SetWindowPos(NULL,0,0,0,0,NULL);
+	ShowWindow(SW_HIDE);	
 
-	m_pImgMask = 
-		Gdiplus::Image::FromFile(L"E:\\Projects\\CaptureScreenDemo\\CaptureScreenDemo\\SC_MASK.png");
+	g_hWnd = this->m_hWnd;
+
+	//装载钩子
+	g_Keyboard_Hook = 
+		SetWindowsHookEx(WH_KEYBOARD_LL,
+		&Keyboard_Proc,
+		0,
+		0);
+	if (g_Keyboard_Hook == NULL)
+	{
+		MessageBox(L"SetWindowsHookEx failed!");
+	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -248,73 +286,6 @@ HBITMAP CCaptureScreenDemoDlg::CopyScreenToBitmap(LPRECT lpRect,BOOL bSave)
 		int w=nWidth;
 		int h=nHeight;
 
-// 	m_pngMask.DrawImage(pMemDc,0,0,nWidth,y,0,0,8,8);
-// 	m_pngMask.DrawImage(pMemDc,0,y+h,nWidth,nHeight-y-h,0,0,8,8);
-// 	m_pngMask.DrawImage(pMemDc,0,y,x,h,0,0,8,8);
-// 	m_pngMask.DrawImage(pMemDc,x+w,y,nWidth-x-w,h,0,0,8,8);
-// 
-// 	pMemDc->Draw3dRect(x,y,w,h,RGB(0,0,0),RGB(0,0,0));
-// 	//////////////////////////////////////////////////////////////////////////
-// 	CRect rc; rc.left=x+2;rc.top=y-24;rc.right=x+268;rc.bottom=y-2;
-// 	if(rc.top<0){rc.top=y+2;rc.bottom=y+24;}
-// 	m_pngMask.DrawImage(pMemDc,rc.left,rc.top,rc.Width(),rc.Height(),0,0,8,8);
-// 	
-// 	//////////////////////////////////////////////////////////////////////////
-// 	m_rcAction[0].left=x+w-232;m_rcAction[0].top=y+h+2;
-// 	m_rcAction[0].right=m_rcAction[0].left+130;m_rcAction[0].bottom=m_rcAction[1].top+26;
-// 	m_pngAction.DrawImage(pMemDc,m_rcAction[0].left,m_rcAction[0].top,130,26,0,(m_iActionMask & 0x00F)*26,130,26);
-// 
-// 	m_rcAction[1].left=x+w-102;m_rcAction[1].top=y+h+2;
-// 	m_rcAction[1].right=m_rcAction[1].left+51;m_rcAction[1].bottom=m_rcAction[1].top+26;
-// 	m_pngAction.DrawImage(pMemDc,m_rcAction[1].left,m_rcAction[1].top,51,26,130,((m_iActionMask & 0x0F0)>4)*26,51,26);
-// 
-// 	m_rcAction[2].left=x+w-51;m_rcAction[2].top=y+h+2;
-// 	m_rcAction[2].right=m_rcAction[2].left+51;m_rcAction[2].bottom=m_rcAction[2].top+26;
-// 	m_pngAction.DrawImage(pMemDc,m_rcAction[2].left,m_rcAction[2].top,51,26,181,((m_iActionMask & 0xF00)>8)*26,51,26);
-// 	//////////////////////////////////////////////////////////////////////////
-// 	x=m_rcSel[0].left;
-// 	y=m_rcSel[0].top;
-// 	w=m_rcSel[0].Width();
-// 	h=m_rcSel[0].Height();
-// 
-// 
-// 	m_pngDot.DrawImage(pMemDc,x-2,y-2);
-// 	m_rcSel[1].left=x-2;m_rcSel[1].top=y-2;
-// 
-// 	m_pngDot.DrawImage(pMemDc,x+w/2-2,y-2);
-// 	m_rcSel[2].left=x+w/2-2;m_rcSel[2].top=y-2;
-// 
-// 	m_pngDot.DrawImage(pMemDc,x+w-3,y-2);
-// 	m_rcSel[3].left=x+w-3;m_rcSel[3].top=y-2;
-// 
-// 	m_pngDot.DrawImage(pMemDc,x-2,y+h/2-2);
-// 	m_rcSel[4].left=x-2;m_rcSel[4].top=y+h/2-2;
-// 
-// 	m_pngDot.DrawImage(pMemDc,x+w-3,y+h/2-2);
-// 	m_rcSel[5].left=x+w-3;m_rcSel[5].top=y+h/2-2;
-// 
-// 	m_pngDot.DrawImage(pMemDc,x-2,y+h-3);
-// 	m_rcSel[6].left=x-2;m_rcSel[6].top=y+h-3;
-// 
-// 	m_pngDot.DrawImage(pMemDc,x+w/2-2,y+h-3);
-// 	m_rcSel[7].left=x+w/2-2;m_rcSel[7].top=y+h-3;
-// 
-// 	m_pngDot.DrawImage(pMemDc,x+w-3,y+h-3);
-// 	m_rcSel[8].left=x+w-3;m_rcSel[8].top=y+h-3;
-// 
-// 	for(int i=1;i<9;i++)
-// 	{
-// 	m_rcSel[i].right=m_rcSel[i].left+5;
-// 	m_rcSel[i].bottom=m_rcSel[i].top+5;
-// 	}
-
-	//////////////////////////////////////////////////////////////////////////
-// 	//绘画界面
-// 	CDC * pDC = CDC::FromHandle(hScrDC);
-// 	pDC->BitBlt(0,0,nWidth,nHeight,pMemDc,0,0,SRCCOPY);
-// 	//////////////////////////////////////////////////////////////////////////
-	///
-
 	//清除 
 	DeleteDC(hScrDC);
 	DeleteDC(hMemDC);
@@ -333,4 +304,10 @@ HBITMAP CCaptureScreenDemoDlg::CopyScreenToBitmap(LPRECT lpRect,BOOL bSave)
       }
 	}
 	return hBitmap;
+}
+
+LRESULT CCaptureScreenDemoDlg::OnRecvCaptureScreen(WPARAM wParam, LPARAM lParam)
+{
+	OnBnClickedBtnCapture();
+	return 0;
 }

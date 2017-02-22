@@ -33,6 +33,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedBtnCapture();
+	LRESULT OnRecvCaptureScreen(WPARAM wParam, LPARAM lParam);
 
 private:
 	CBackGroundDlg*		m_pdlgBkgnd;

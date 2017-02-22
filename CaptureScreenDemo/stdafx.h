@@ -63,3 +63,5 @@
 #include <math.h>
 #include <GdiPlus.h>
 using namespace Gdiplus;
+
+#define WM_CAPTURE_SCREEN		WM_USER + 0x0001

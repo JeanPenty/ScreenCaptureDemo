@@ -165,17 +165,17 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 
-	/*
+	/*	2017-02-22	yangjinpeng
 	@	如果鼠标按下区域在截取的区域内，有两种操作
 	@	1、整体移动
 	@	2、绘制其他图形或者涂鸦
 	*/
-	if (PtInRect(m_rcSelected, point) && !m_bDrawOperate)
+	if (PtInRect(m_rcSelected, point) && !m_bDrawOperate)		//选择整块移动
 	{
 		m_bMoveAll = true;
 		SetCursor(m_hCurSelect);		
 	}
-	else if (!PtInRect(m_rcSelected, point) && !m_bDrawOperate)
+	else if (!PtInRect(m_rcSelected, point) && !m_bDrawOperate)	//排除掉在已截取的区域外的绘图
 	{
 		m_bDraw = false;
 		SetCursor(m_hCurArrow);
@@ -186,7 +186,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.left - 3, 
 		m_rcSelected.top - 3, 
 		m_rcSelected.left + 2, 
-		m_rcSelected.top + 2), point))		//左上鼠标光标
+		m_rcSelected.top + 2), point))		//左上鼠标光标，左上角拉伸
 	{
 		SetCursor(m_hCurLeftTop);
 		m_bLeftTopMove = true;
@@ -195,7 +195,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.right - (m_rcSelected.right - m_rcSelected.left)/2,
 		m_rcSelected.top - 3,
 		m_rcSelected.right - (m_rcSelected.right - m_rcSelected.left)/2 + 5,
-		m_rcSelected.top + 2), point))		//上边鼠标光标
+		m_rcSelected.top + 2), point))		//上边鼠标光标，上边拉伸
 	{
 		SetCursor(m_hCurTop);
 		m_bTopMove = true;
@@ -204,7 +204,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.right - 2, 
 		m_rcSelected.top - 3,
 		m_rcSelected.right + 3,
-		m_rcSelected.top + 2), point))		//右上鼠标光标
+		m_rcSelected.top + 2), point))		//右上鼠标光标，右上角拉伸
 	{
 		SetCursor(m_hCurRightTop);
 		m_bRightTopMove = true;
@@ -213,7 +213,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.right - 2, 
 		m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2,
 		m_rcSelected.right + 3, 
-		m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2 + 5), point))		//右边鼠标光标
+		m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2 + 5), point))		//右边鼠标光标，右边拉伸
 	{
 		SetCursor(m_hCurRight);
 		m_bRightMove = true;
@@ -222,7 +222,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.right - 2, 
 		m_rcSelected.bottom - 2,
 		m_rcSelected.right + 3, 
-		m_rcSelected.bottom + 3), point))		//右下鼠标光标
+		m_rcSelected.bottom + 3), point))		//右下鼠标光标，右下角拉伸
 	{
 		SetCursor(m_hCurRightBottom);
 		m_bRightBottomMove = true;
@@ -231,7 +231,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.right - (m_rcSelected.right - m_rcSelected.left)/2, 
 		m_rcSelected.bottom - 2,
 		m_rcSelected.right - (m_rcSelected.right - m_rcSelected.left)/2 + 5, 
-		m_rcSelected.bottom + 3), point))		//下边鼠标光标
+		m_rcSelected.bottom + 3), point))		//下边鼠标光标，下边拉伸
 	{
 		SetCursor(m_hCurBottom);
 		m_bBottomMove = true;
@@ -240,7 +240,7 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.left - 3, 
 		m_rcSelected.bottom - 2,
 		m_rcSelected.left + 2, 
-		m_rcSelected.bottom + 3), point))		//左下鼠标光标
+		m_rcSelected.bottom + 3), point))		//左下鼠标光标，左下角拉伸
 	{
 		SetCursor(m_hCurLeftBottom);
 		m_bLeftBottomMove = true;
@@ -249,14 +249,14 @@ void CBackGroundDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (PtInRect(CRect(m_rcSelected.left -3, 
 		m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2,
 		m_rcSelected.left + 2,
-		m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2 + 5), point))		//左边鼠标光标
+		m_rcSelected.bottom - (m_rcSelected.bottom - m_rcSelected.top)/2 + 5), point))		//左边鼠标光标，左边拉伸
 	{
 		SetCursor(m_hCurLeft);
 		m_bLeftMove = true;
 	}
 
 	//begin operate_bar
-	if (PtInRect(m_rcFinish, point))
+	if (PtInRect(m_rcFinish, point))			
 	{
 		//TODO:	截图完成，可在此处写相应的逻辑处理代码	
 		SetCursor(m_hCurHand);		//设置鼠标为手型
