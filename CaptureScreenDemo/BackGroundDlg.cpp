@@ -84,6 +84,8 @@ BOOL CBackGroundDlg::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 
+	ModifyStyleEx(WS_EX_APPWINDOW,WS_EX_TOOLWINDOW);
+
 	EnableToolTips(TRUE);
 	m_toolTip.Create(this);
 	m_toolTip.Activate(TRUE);
